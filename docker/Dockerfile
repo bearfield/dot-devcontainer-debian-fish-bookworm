@@ -18,60 +18,60 @@ RUN mkdir -p /etc/sudoers.d \
 RUN apt-get update \
     # install debian packages
     && apt-get install  --no-install-recommends -y \
-        ca-certificates \
-        git \
-        lsb-release \
-        sudo \
-        curl \
-        gnupg \
-        make \
-        peco \
-        fish \
-        locales \
-        openssh-client \
-        unzip \
-        wget \
-        shellcheck \
-        libcurl4-gnutls-dev \
-        libexpat1-dev gettext \
-        libz-dev \
-        libssl-dev \
-        gcc \
-        less \
-        jq \
-        ripgrep \
-        tree \
-        zip \
-        unzip \
-        python3 \
-        python3-dev \
-        build-essential \
-        libffi-dev \
-#
-# set locale
+    ca-certificates \
+    git \
+    lsb-release \
+    sudo \
+    curl \
+    gnupg \
+    make \
+    peco \
+    fish \
+    locales \
+    openssh-client \
+    unzip \
+    wget \
+    shellcheck \
+    libcurl4-gnutls-dev \
+    libexpat1-dev gettext \
+    libz-dev \
+    libssl-dev \
+    gcc \
+    less \
+    jq \
+    ripgrep \
+    tree \
+    zip \
+    unzip \
+    python3 \
+    python3-dev \
+    build-essential \
+    libffi-dev \
+    #
+    # set locale
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 \
     && update-locale LC_CTYPE=en_US.UTF-8 \
-#
-# install powerline patched fonts
+    #
+    # install powerline patched fonts
     && apt-get install -y \
-        fonts-powerline \
+    fonts-powerline \
     # crean up
     && apt-get autoremove -y \
     && apt-get clean -y \
-	&& rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 # install Google Cloud SDK
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
     && apt-get update -y \
     && apt-get install -y \
-        google-cloud-sdk \
-        kubectl \
-        google-cloud-cli-gke-gcloud-auth-plugin \
+    google-cloud-sdk \
+    kubectl \
+    google-cloud-cli-gke-gcloud-auth-plugin \
     # crean up
     && apt-get clean -y \
-	&& rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 # install GitHub CLI
 RUN mkdir -p -m 755 /etc/apt/keyrings \
     && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
@@ -88,15 +88,15 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     && sudo ./aws/install
 #
 # install docker
-    # Add Docker's official GPG key:
+# Add Docker's official GPG key:
 RUN install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
     && chmod a+r /etc/apt/keyrings/docker.asc \
     # Add the repository to Apt sources:
     && echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-        tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get update \
     # Install the Docker packages.
     && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
@@ -104,8 +104,8 @@ RUN install -m 0755 -d /etc/apt/keyrings \
     # crean up
     && apt-get autoremove -y \
     && apt-get clean -y \
-	&& rm -rf /var/lib/apt/lists/*
-# install Node.js (needed for claude-code)
+    && rm -rf /var/lib/apt/lists/*
+# install Node.js (needed for codex-cli)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
@@ -149,11 +149,16 @@ RUN fisher install bearfield/peco_select_gce_ssh
 RUN fisher install bearfield/peco_select_gcp_project
 # power line style
 RUN fisher install oh-my-fish/theme-bobthefish
-# install claude-code as user
+# install codex-cli as user via npm
 RUN mkdir -p /home/$USER_NAME/.npm-global && \
     npm config set prefix /home/$USER_NAME/.npm-global && \
-    npm install -g @anthropic-ai/claude-code && \
     npm install -g @openai/codex
+# install claude-code native version
+USER root
+SHELL ["/bin/bash", "-c"]
+RUN curl -fsSL https://claude.ai/install.sh | bash
+USER $USER_NAME
+SHELL ["fish", "-c"]
 # copy config.fish
 COPY config.fish /home/$USER_NAME/.config/fish/config.fish
 
