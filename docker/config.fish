@@ -19,6 +19,9 @@ alias ipython="uv tool run ipython"
 # Add npm user global bin to PATH
 set -gx PATH /home/$USER/.npm-global/bin $PATH
 
+# Add Claude Code native binary to PATH
+set -gx PATH /home/$USER/.claude/local/bin $PATH
+
 # cdx: short form wrapper (config-driven)
 function cdx
     command codex $argv
