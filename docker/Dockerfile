@@ -47,6 +47,7 @@ RUN apt-get update \
     python3-dev \
     build-essential \
     libffi-dev \
+    graphviz \
     #
     # set locale
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
