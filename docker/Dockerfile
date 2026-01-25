@@ -113,11 +113,17 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
-# install uv globally
+# install uv globally (including uvx symlink)
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
     && mv /root/.local/bin/uv /usr/local/bin/uv \
-    && chmod 755 /usr/local/bin/uv \
+    && mv /root/.local/bin/uvx /usr/local/bin/uvx \
+    && chmod 755 /usr/local/bin/uv /usr/local/bin/uvx \
     && rm -rf /root/.local
+# Set up system-wide uv tool directory
+ENV UV_TOOL_DIR=/opt/uv/tools
+ENV UV_TOOL_BIN=/opt/uv/bin
+RUN mkdir -p $UV_TOOL_DIR $UV_TOOL_BIN \
+    && chmod -R 755 /opt/uv
 # Install Python system-wide
 RUN export UV_PYTHON_INSTALL_DIR=/opt/uv/python \
     && uv python install 3.13 \
@@ -126,8 +132,7 @@ RUN export UV_PYTHON_INSTALL_DIR=/opt/uv/python \
     && ln -sf /usr/local/bin/python3.13 /usr/local/bin/python3 \
     && ln -sf /usr/local/bin/python3.13 /usr/local/bin/python \
     && chmod -R 755 /opt/uv
-# Install Python tools as devuser
-USER $USER_NAME
+# Install Python tools system-wide (using UV_TOOL_DIR and UV_TOOL_BIN env vars)
 RUN uv tool install httpie \
     && uv tool install yq \
     && uv tool install ruff \
@@ -136,9 +141,8 @@ RUN uv tool install httpie \
     && uv tool install pytest \
     && uv tool install ipython \
     && uv tool install poetry \
-    && uv tool install pipx
-# Switch back to root
-USER root
+    && uv tool install pipx \
+    && chmod -R 755 /opt/uv
 #
 # isntall fisher
 USER $USER_NAME
