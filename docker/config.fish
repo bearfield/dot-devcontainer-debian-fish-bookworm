@@ -17,10 +17,10 @@ alias mypy="uv tool run mypy"
 alias ipython="uv tool run ipython"
 
 # Add npm user global bin to PATH
-set -gx PATH /home/$USER/.npm-global/bin $PATH
+set -gx PATH $HOME/.npm-global/bin $PATH
 
-# Add Claude Code native binary to PATH
-set -gx PATH /home/$USER/.claude/local/bin $PATH
+# Add Claude Code native binary to PATH (installed to ~/.local/bin)
+set -gx PATH $HOME/.local/bin $PATH
 
 # cdx: short form wrapper (config-driven)
 function cdx

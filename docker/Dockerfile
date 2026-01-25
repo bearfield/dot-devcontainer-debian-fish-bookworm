@@ -153,18 +153,18 @@ RUN fisher install oh-my-fish/theme-bobthefish
 RUN mkdir -p /home/$USER_NAME/.npm-global && \
     npm config set prefix /home/$USER_NAME/.npm-global && \
     npm install -g @openai/codex
-# install claude-code native version
-USER root
+# install claude-code native version as user (so it goes to ~/.local/bin)
 SHELL ["/bin/bash", "-c"]
-RUN curl -fsSL https://claude.ai/install.sh | bash
-USER $USER_NAME
+RUN curl -fsSL https://claude.ai/install.sh | bash && \
+    # Verify installation - claude is installed to ~/.local/bin
+    ~/.local/bin/claude --version && \
+    echo "Claude Code installation verified successfully"
 SHELL ["fish", "-c"]
 # copy config.fish
 COPY config.fish /home/$USER_NAME/.config/fish/config.fish
 
 # create .claude directory for Claude Code settings
 RUN mkdir -p /home/$USER_NAME/.claude && \
-    chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/.claude && \
     chmod 755 /home/$USER_NAME/.claude
 
 # create .codex directory for Codex CLI settings and runtime files
