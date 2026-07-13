@@ -107,7 +107,7 @@ RUN install -m 0755 -d /etc/apt/keyrings \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 # install Node.js (needed for codex-cli)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
     # crean up
